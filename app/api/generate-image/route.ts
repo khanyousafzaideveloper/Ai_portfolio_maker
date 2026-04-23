@@ -10,9 +10,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Project name required" }, { status: 400 })
     }
 
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      return NextResponse.json({ error: "API key not configured" }, { status: 500 })
+    }
+
     // Generate a detailed prompt for the image based on project name and description
     const { text: imagePrompt } = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
+      model: groq("llama-3.3-70b-versatile", { apiKey }),
       prompt: `Create a concise, visual prompt for an AI image generator for a project called "${projectName}". ${projectDescription ? `Project description: ${projectDescription}. ` : ""}The image should be modern, professional, and represent the project visually. Keep it under 100 words. Start directly with the visual description.`,
       temperature: 0.8,
       maxTokens: 150,

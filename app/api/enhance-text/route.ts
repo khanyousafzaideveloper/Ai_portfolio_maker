@@ -1,4 +1,5 @@
 import { generateText } from "ai"
+import { groq } from "@ai-sdk/groq"
 
 export async function POST(req: Request) {
   try {
@@ -6,6 +7,11 @@ export async function POST(req: Request) {
 
     if (!text || !text.trim()) {
       return Response.json({ error: "Text is required" }, { status: 400 })
+    }
+
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      return Response.json({ error: "API key not configured" }, { status: 500 })
     }
 
     let prompt = ""
@@ -18,7 +24,7 @@ export async function POST(req: Request) {
     }
 
     const { text: enhancedText } = await generateText({
-      model: "groq/llama-3.3-70b-versatile",
+      model: groq("llama-3.3-70b-versatile", { apiKey }),
       prompt,
     })
 

@@ -1,14 +1,83 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
+import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import ImageUploader from "./image-uploader"
 
-export default function PortfolioForm({ onGenerate, isGenerating, setIsGenerating }) {
-  const [formData, setFormData] = useState({
+const BUCKET_NAME = "portfolio-images"
+
+type Project = {
+  id?: number
+  name: string
+  description: string
+  image?: string | null
+}
+
+type PortfolioFormProps = {
+  onGenerate: (html: string, resumeHtml?: string) => void
+  isGenerating: boolean
+  setIsGenerating: (value: boolean) => void
+}
+
+type FormDataState = {
+  name: string
+  email: string
+  phone: string
+  linkedin: string
+  github: string
+  twitter: string
+  website: string
+  tagline: string
+  aboutHint: string
+  skills: string
+  experience: string
+  useAI: boolean
+  template: string
+  research: string
+  achievements: string
+  events: string
+  languages: string
+}
+
+async function uploadImageToStorage(path: string, image: string): Promise<string | null> {
+  try {
+    const response = await fetch(image)
+    if (!response.ok) {
+      console.warn("Image fetch failed", response.status, image)
+      return null
+    }
+
+    const blob = await response.blob()
+    const extension = blob.type.split("/")[1] || "png"
+    const filePath = `${path}.${extension}`
+
+    const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, blob, {
+      contentType: blob.type || "image/png",
+      upsert: true,
+    })
+
+    if (error) {
+      console.warn("Supabase upload failed", error)
+      return null
+    }
+
+    const publicUrlResponse = await supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(data.path)
+
+    return publicUrlResponse.data?.publicUrl ?? null
+  } catch (error) {
+    console.warn("Upload image to storage failed", error)
+    return null
+  }
+}
+
+export default function PortfolioForm({ onGenerate, isGenerating, setIsGenerating }: PortfolioFormProps) {
+  const [formData, setFormData] = useState<FormDataState>({
     name: "",
     email: "",
     phone: "",
@@ -29,14 +98,14 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     languages: "",
   })
 
-  const [profilePic, setProfilePic] = useState(null)
-  const [projects, setProjects] = useState([])
-  const [currentProject, setCurrentProject] = useState({ name: "", description: "", image: null })
+  const [profilePic, setProfilePic] = useState<string | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [currentProject, setCurrentProject] = useState<Project>({ name: "", description: "", image: null })
   const [generatingDescription, setGeneratingDescription] = useState(false)
   const [generatingImage, setGeneratingImage] = useState(false)
-  const [enhancingField, setEnhancingField] = useState(null)
+  const [enhancingField, setEnhancingField] = useState<string | null>(null)
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type, checked } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -108,13 +177,19 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     }
   }
 
+  const uploadResource = async (prefix: string, imageUrl: string | null): Promise<string | null> => {
+    if (!imageUrl) return null
+    const key = `${prefix}-${Date.now()}`
+    return await uploadImageToStorage(key, imageUrl)
+  }
+
   const handleAddProject = () => {
     if (!currentProject.name.trim()) {
       alert("Please enter a project name")
       return
     }
 
-    const projectWithId = {
+    const projectWithId: Project = {
       ...currentProject,
       id: Date.now(),
     }
@@ -123,11 +198,11 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     setCurrentProject({ name: "", description: "", image: null })
   }
 
-  const handleRemoveProject = (id) => {
+  const handleRemoveProject = (id: number) => {
     setProjects((prev) => prev.filter((p) => p.id !== id))
   }
 
-  const handleGeneratePortfolio = async (e) => {
+  const handleGeneratePortfolio = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!formData.name || !formData.email || !formData.skills) {
@@ -150,6 +225,46 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
       if (!response.ok) throw new Error("Failed to generate portfolio")
 
       const data = await response.json()
+
+      // Upload profile picture and project images to storage before saving
+      const profilePicUrl = await uploadResource("profile-pic", profilePic)
+      const projectUploads = await Promise.all(
+        projects.map(async (project, index) => {
+          const imageUrl = await uploadResource(`project-${index}`, project.image)
+          return {
+            ...project,
+            image: imageUrl || project.image,
+          }
+        }),
+      )
+
+      // Save portfolio to Supabase silently (no user notification)
+      try {
+        const saveResponse = await fetch("/api/save-portfolio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            projects: projectUploads,
+            profilePic: profilePicUrl || profilePic,
+            portfolioHtml: data.portfolioHtml,
+          }),
+        })
+
+        const saveResult = await saveResponse.json()
+        if (!saveResponse.ok) {
+          console.error("Portfolio save failed:", saveResult)
+          alert(
+            `Portfolio save failed: ${saveResult.details || saveResult.error}`,
+          )
+        } else {
+          console.log("Portfolio saved successfully:", saveResult.data)
+        }
+      } catch (saveError) {
+        console.error("Save operation failed:", saveError)
+        alert("Portfolio could not be saved to Supabase.")
+      }
+
       alert("Portfolio generated successfully! ✨")
       onGenerate(data.portfolioHtml, data.resumeHtml)
     } catch (error) {

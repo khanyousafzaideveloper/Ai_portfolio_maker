@@ -10,8 +10,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Project name required" }, { status: 400 })
     }
 
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      return NextResponse.json({ error: "API key not configured" }, { status: 500 })
+    }
+
     const { text } = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
+      model: groq("llama-3.3-70b-versatile", { apiKey }),
       prompt: `Generate a professional 1-2 sentence description for a project called "${projectName}" built with ${skills || "web technologies"}. Make it concise, impressive, and suitable for a portfolio. Return only the description, no quotes or extra text.`,
       temperature: 0.7,
       maxTokens: 150,

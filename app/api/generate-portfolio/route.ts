@@ -39,6 +39,11 @@ async function generateAIContent(
   researchProfile = "",
 ) {
   try {
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      throw new Error("API key not configured")
+    }
+
     const projectNames = projects
       .map((p) => p.name)
       .filter((n) => n)
@@ -59,7 +64,7 @@ Generate a JSON response with exactly this structure (no markdown, just JSON):
 }`
 
     const { text } = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
+      model: groq("llama-3.3-70b-versatile", { apiKey }),
       prompt,
       temperature: 0.7,
       maxTokens: 400,
