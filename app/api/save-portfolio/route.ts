@@ -169,8 +169,6 @@ export async function POST(request: NextRequest) {
           created_at: new Date().toISOString(),
         },
       ])
-      .select()
-      .maybeSingle()
 
     if (error) {
       console.error("Save error:", error)
@@ -178,6 +176,7 @@ export async function POST(request: NextRequest) {
         {
           error: "Save failed",
           details: error.message || JSON.stringify(error),
+          fullError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
         },
         { status: 500 },
       )
