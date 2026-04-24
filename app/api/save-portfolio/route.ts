@@ -142,54 +142,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const userId = portfolioData.email.replace(/[^a-zA-Z0-9_-]/g, "_")
-    const timestamp = Date.now()
-
-    let profilePicUrl = null
-    if (portfolioData.profilePic) {
-      try {
-        profilePicUrl = await uploadImage(
-          `profiles/${userId}/profile-${timestamp}`,
-          portfolioData.profilePic,
-        )
-      } catch (error) {
-        console.warn("Failed to upload profile picture:", error)
-        // Continue without profile picture if upload fails
-        profilePicUrl = null
-      }
-    }
-
-    const projects = Array.isArray(portfolioData.projects)
-      ? await Promise.all(
-          (portfolioData.projects as Project[]).map(
-            async (project: Project, index: number) => {
-              if (!project || typeof project !== "object") return project
-
-              const imageUrl = project.image
-              let uploadedImageUrl: string | null = null
-              
-              if (imageUrl) {
-                try {
-                  uploadedImageUrl = await uploadImage(
-                    `projects/${userId}/${timestamp}-${index}`,
-                    imageUrl,
-                  )
-                } catch (error) {
-                  console.warn(`Failed to upload project image ${index}:`, error)
-                  // Keep the original URL if upload fails
-                  uploadedImageUrl = null
-                }
-              }
-
-              return {
-                ...project,
-                image: uploadedImageUrl || imageUrl || null,
-              }
-            },
-          ),
-        )
-      : []
-
+    // Skip image uploads for now - save directly to database
     const { data: insertedData, error } = await supabaseServer
       .from("portfolios")
       .insert([
@@ -210,8 +163,8 @@ export async function POST(request: NextRequest) {
           events: portfolioData.events,
           languages: portfolioData.languages,
           template: portfolioData.template,
-          profile_pic: profilePicUrl,
-          projects,
+          profile_pic: null,
+          projects: Array.isArray(portfolioData.projects) ? portfolioData.projects : [],
           portfolio_html: portfolioData.portfolioHtml,
           created_at: new Date().toISOString(),
         },
