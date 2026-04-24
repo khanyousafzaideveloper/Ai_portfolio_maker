@@ -58,7 +58,12 @@ async function uploadDataUrl(path: string, dataUrl: string) {
   const mimeMatch = meta.match(/data:(.*?);base64/)
   const contentType = mimeMatch?.[1]?.split(";")?.[0] || "image/png"
   const extension = normalizeExtension(contentType.split("/")[1] || "png")
-  const filename = `${sanitizeStorageKey(path)}.${extension}`
+  const filename = `${sanitizeStorageKey(path)}.${extension}`.substring(0, 200)
+  
+  if (!filename || filename.startsWith(".")) {
+    throw new Error(`Invalid filename generated: ${filename}`)
+  }
+
   const buffer = Buffer.from(base64, "base64")
 
   const { error } = await supabaseServer.storage
@@ -69,6 +74,7 @@ async function uploadDataUrl(path: string, dataUrl: string) {
     })
 
   if (error) {
+    console.error("Upload error details:", { error, filename, path, contentType })
     throw error
   }
 
@@ -84,7 +90,12 @@ async function uploadRemoteImage(path: string, imageUrl: string) {
 
   const contentType = (response.headers.get("content-type") || "image/png").split(";")?.[0]
   const extension = normalizeExtension(contentType.split("/")[1] || "png")
-  const filename = `${sanitizeStorageKey(path)}.${extension}`
+  const filename = `${sanitizeStorageKey(path)}.${extension}`.substring(0, 200)
+  
+  if (!filename || filename.startsWith(".")) {
+    throw new Error(`Invalid filename generated: ${filename}`)
+  }
+
   const buffer = Buffer.from(await response.arrayBuffer())
 
   const { error } = await supabaseServer.storage
@@ -95,6 +106,7 @@ async function uploadRemoteImage(path: string, imageUrl: string) {
     })
 
   if (error) {
+    console.error("Upload error details:", { error, filename, path, contentType })
     throw error
   }
 
