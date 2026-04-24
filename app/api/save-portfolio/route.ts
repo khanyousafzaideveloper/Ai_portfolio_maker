@@ -142,45 +142,82 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Skip image uploads for now - save directly to database
-    const { data: insertedData, error } = await supabaseServer
-      .from("portfolios")
-      .insert([
-        {
-          name: portfolioData.name,
-          email: portfolioData.email,
-          phone: portfolioData.phone,
-          linkedin: portfolioData.linkedin,
-          github: portfolioData.github,
-          twitter: portfolioData.twitter,
-          website: portfolioData.website,
-          tagline: portfolioData.tagline,
-          about_hint: portfolioData.aboutHint,
-          skills: portfolioData.skills,
-          experience: portfolioData.experience,
-          research_profile: portfolioData.researchProfile,
-          achievements: portfolioData.achievements,
-          events: portfolioData.events,
-          languages: portfolioData.languages,
-          template: portfolioData.template,
-          profile_pic: null,
-          projects: Array.isArray(portfolioData.projects) ? portfolioData.projects : [],
-          portfolio_html: portfolioData.portfolioHtml,
-          created_at: new Date().toISOString(),
-        },
-      ])
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    if (error) {
-      console.error("Save error:", error)
+    if (!supabaseUrl || !supabaseKey) {
+      console.error("Missing Supabase URL or service role key")
       return NextResponse.json(
         {
           error: "Save failed",
-          details: error.message || JSON.stringify(error),
-          fullError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+          details: "Supabase environment variables are not configured",
         },
         { status: 500 },
       )
     }
+
+    const body = {
+      name: portfolioData.name,
+      email: portfolioData.email,
+      phone: portfolioData.phone,
+      linkedin: portfolioData.linkedin,
+      github: portfolioData.github,
+      twitter: portfolioData.twitter,
+      website: portfolioData.website,
+      tagline: portfolioData.tagline,
+      about_hint: portfolioData.aboutHint,
+      skills: portfolioData.skills,
+      experience: portfolioData.experience,
+      research_profile: portfolioData.researchProfile,
+      achievements: portfolioData.achievements,
+      events: portfolioData.events,
+      languages: portfolioData.languages,
+      template: portfolioData.template,
+      profile_pic: null,
+      projects: Array.isArray(portfolioData.projects) ? portfolioData.projects : [],
+      portfolio_html: portfolioData.portfolioHtml,
+      created_at: new Date().toISOString(),
+    }
+
+    try {
+      const restUrl = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/portfolios`
+      const response = await fetch(restUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify([body]),
+      })
+
+      const result = await response.json()
+      if (!response.ok) {
+        console.error("Supabase REST save failed:", response.status, result)
+        return NextResponse.json(
+          {
+            error: "Save failed",
+            details: result?.message || JSON.stringify(result),
+            fullError: JSON.stringify(result),
+          },
+          { status: 500 },
+        )
+      }
+
+      const insertedData = Array.isArray(result) ? result[0] : result
+    } catch (fetchError) {
+      console.error("Fetch error:", fetchError)
+      return NextResponse.json(
+        {
+          error: "Save failed",
+          details: `Fetch error: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`,
+        },
+        { status: 500 },
+      )
+    }
+
+    const insertedData = null
 
     return NextResponse.json(
       { success: true, data: insertedData },
