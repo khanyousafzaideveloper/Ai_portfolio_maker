@@ -181,6 +181,9 @@ export async function POST(request: NextRequest) {
 
     try {
       const restUrl = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/portfolios`
+      console.log("REST URL being called:", restUrl)
+      console.log("Request body:", JSON.stringify(body))
+      
       const response = await fetch(restUrl, {
         method: "POST",
         headers: {
