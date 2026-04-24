@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
           Authorization: `Bearer ${supabaseKey}`,
           Prefer: "return=representation",
         },
-        body: JSON.stringify([body]),
+        body: JSON.stringify(body),
       })
 
       const result = await response.json()
