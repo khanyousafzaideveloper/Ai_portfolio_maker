@@ -147,10 +147,16 @@ export async function POST(request: NextRequest) {
 
     let profilePicUrl = null
     if (portfolioData.profilePic) {
-      profilePicUrl = await uploadImage(
-        `profiles/${userId}/profile-${timestamp}`,
-        portfolioData.profilePic,
-      )
+      try {
+        profilePicUrl = await uploadImage(
+          `profiles/${userId}/profile-${timestamp}`,
+          portfolioData.profilePic,
+        )
+      } catch (error) {
+        console.warn("Failed to upload profile picture:", error)
+        // Continue without profile picture if upload fails
+        profilePicUrl = null
+      }
     }
 
     const projects = Array.isArray(portfolioData.projects)
@@ -160,12 +166,20 @@ export async function POST(request: NextRequest) {
               if (!project || typeof project !== "object") return project
 
               const imageUrl = project.image
-              const uploadedImageUrl = imageUrl
-                ? await uploadImage(
+              let uploadedImageUrl: string | null = null
+              
+              if (imageUrl) {
+                try {
+                  uploadedImageUrl = await uploadImage(
                     `projects/${userId}/${timestamp}-${index}`,
                     imageUrl,
                   )
-                : null
+                } catch (error) {
+                  console.warn(`Failed to upload project image ${index}:`, error)
+                  // Keep the original URL if upload fails
+                  uploadedImageUrl = null
+                }
+              }
 
               return {
                 ...project,
