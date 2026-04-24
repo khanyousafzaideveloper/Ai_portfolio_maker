@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase"
+import { supabaseServer } from "@/lib/supabase-server"
 import { type NextRequest, NextResponse } from "next/server"
 
 const BUCKET_NAME = "portfolio-images"
@@ -36,6 +36,19 @@ function isDataUrl(value: unknown): value is string {
   return typeof value === "string" && value.startsWith("data:")
 }
 
+function sanitizeStorageKey(key: string) {
+  return key
+    .replace(/^\/+/, "")
+    .replace(/\.\./g, "_")
+    .replace(/[^a-zA-Z0-9_\-./]/g, "_")
+    .replace(/\/+/g, "/")
+    .toLowerCase()
+}
+
+function normalizeExtension(extension: string) {
+  return extension.toLowerCase().split("+")[0].replace(/[^a-z0-9]/g, "") || "png"
+}
+
 async function uploadDataUrl(path: string, dataUrl: string) {
   const [meta, base64] = dataUrl.split(",")
   if (!base64) {
@@ -43,13 +56,14 @@ async function uploadDataUrl(path: string, dataUrl: string) {
   }
 
   const mimeMatch = meta.match(/data:(.*?);base64/)
-  const contentType = mimeMatch?.[1] || "image/png"
-  const extension = contentType.split("/")[1] || "png"
+  const contentType = mimeMatch?.[1]?.split(";")?.[0] || "image/png"
+  const extension = normalizeExtension(contentType.split("/")[1] || "png")
+  const filename = `${sanitizeStorageKey(path)}.${extension}`
   const buffer = Buffer.from(base64, "base64")
 
-  const { error } = await supabase.storage
+  const { error } = await supabaseServer.storage
     .from(BUCKET_NAME)
-    .upload(`${path}.${extension}`, buffer, {
+    .upload(filename, buffer, {
       contentType,
       upsert: true,
     })
@@ -58,7 +72,7 @@ async function uploadDataUrl(path: string, dataUrl: string) {
     throw error
   }
 
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${path}.${extension}`)
+  const { data } = supabaseServer.storage.from(BUCKET_NAME).getPublicUrl(filename)
   return data.publicUrl
 }
 
@@ -68,13 +82,14 @@ async function uploadRemoteImage(path: string, imageUrl: string) {
     throw new Error("Failed to download remote image")
   }
 
-  const contentType = response.headers.get("content-type") || "image/png"
-  const extension = contentType.split("/")[1] || "png"
+  const contentType = (response.headers.get("content-type") || "image/png").split(";")?.[0]
+  const extension = normalizeExtension(contentType.split("/")[1] || "png")
+  const filename = `${sanitizeStorageKey(path)}.${extension}`
   const buffer = Buffer.from(await response.arrayBuffer())
 
-  const { error } = await supabase.storage
+  const { error } = await supabaseServer.storage
     .from(BUCKET_NAME)
-    .upload(`${path}.${extension}`, buffer, {
+    .upload(filename, buffer, {
       contentType,
       upsert: true,
     })
@@ -83,7 +98,7 @@ async function uploadRemoteImage(path: string, imageUrl: string) {
     throw error
   }
 
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${path}.${extension}`)
+  const { data } = supabaseServer.storage.from(BUCKET_NAME).getPublicUrl(filename)
   return data.publicUrl
 }
 
@@ -149,7 +164,7 @@ export async function POST(request: NextRequest) {
         )
       : []
 
-    const { data: insertedData, error } = await supabase
+    const { data: insertedData, error } = await supabaseServer
       .from("portfolios")
       .insert([
         {
@@ -217,7 +232,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseServer
       .from("portfolios")
       .select("*")
       .eq("email", email)

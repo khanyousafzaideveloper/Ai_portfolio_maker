@@ -1,10 +1,10 @@
-import { supabase } from "@/lib/supabase"
+import { supabaseServer } from "@/lib/supabase-server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   try {
     // Test Supabase connection by trying to select from portfolios table
-    const { data, error } = await supabase
+    const { data, error } = await supabaseServer
       .from("portfolios")
       .select("count", { count: "exact", head: true })
 

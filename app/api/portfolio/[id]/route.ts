@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase"
+import { supabaseServer } from "@/lib/supabase-server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function DELETE(
@@ -8,7 +8,7 @@ export async function DELETE(
   try {
     const id = params.id
 
-    const { error } = await supabase.from("portfolios").delete().eq("id", id)
+    const { error } = await supabaseServer.from("portfolios").delete().eq("id", id)
 
     if (error) {
       console.error("Supabase error:", error)
@@ -38,7 +38,7 @@ export async function GET(
   try {
     const id = params.id
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseServer
       .from("portfolios")
       .select("*")
       .eq("id", id)
