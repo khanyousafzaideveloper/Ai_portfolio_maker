@@ -142,8 +142,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://ukcpgpbhfpiyaekvgran.supabase.co"
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrY3BncGJoZnBpeWFla3ZncmFuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Njk1NDQwNCwiZXhwIjoyMDkyNTMwNDA0fQ.HzXEGdhuQMCddpgh9o7DrPFgDyprQ21EAGupNGrUOc0"
+
+    console.log("=== SAVE PORTFOLIO DEBUG ===")
+    console.log("NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl)
+    console.log("SUPABASE_SERVICE_ROLE_KEY exists:", !!supabaseKey)
+    console.log("SUPABASE_SERVICE_ROLE_KEY length:", supabaseKey?.length)
 
     if (!supabaseUrl || !supabaseKey) {
       console.error("Missing Supabase URL or service role key")
@@ -151,6 +156,12 @@ export async function POST(request: NextRequest) {
         {
           error: "Save failed",
           details: "Supabase environment variables are not configured",
+          debug: {
+            hasUrl: !!supabaseUrl,
+            hasKey: !!supabaseKey,
+            urlValue: supabaseUrl ? "present" : "missing",
+            keyLength: supabaseKey?.length || 0
+          }
         },
         { status: 500 },
       )
