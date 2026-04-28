@@ -35,6 +35,7 @@ type FormDataState = {
   aboutHint: string
   skills: string
   experience: string
+  education: string
   useAI: boolean
   template: string
   research: string
@@ -89,6 +90,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     aboutHint: "",
     skills: "",
     experience: "",
+    education: "",
     useAI: true,
     template: "Modern Glass",
 
@@ -205,8 +207,8 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
   const handleGeneratePortfolio = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!formData.name || !formData.email || !formData.skills) {
-      alert("Please fill in: Name, Email, and Skills")
+    if (!formData.name || !formData.email) {
+      alert("Please fill in: Name and Email")
       return
     }
 
@@ -257,8 +259,6 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
           alert(
             `Portfolio save failed: ${saveResult.details || saveResult.error}`,
           )
-        } else {
-          console.log("Portfolio saved successfully:", saveResult.data)
         }
       } catch (saveError) {
         console.error("Save operation failed:", saveError)
@@ -333,7 +333,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
                 name="tagline"
                 value={formData.tagline}
                 onChange={handleInputChange}
-                placeholder="Full Stack Developer"
+                placeholder="Full Stack Developer | Creative Marketer | Data Analyst"
                 className="mt-1 bg-input/50 border-border/50 focus:border-accent transition-colors"
               />
             </div>
@@ -438,14 +438,13 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="skills">Skills * (comma-separated)</Label>
+            <Label htmlFor="skills">Skills (comma-separated)</Label>
             <Input
               id="skills"
               name="skills"
               value={formData.skills}
               onChange={handleInputChange}
               placeholder="React, TypeScript, Python, Node.js, AWS"
-              required
               className="mt-1 bg-input/50 border-border/50 focus:border-accent transition-colors"
             />
           </div>
@@ -480,7 +479,41 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
               name="experience"
               value={formData.experience}
               onChange={handleInputChange}
-              placeholder="Senior Developer at Tech Corp (2020-Present)&#10;Describe your role and achievements..."
+              placeholder="Senior Developer at Tech Corp (2020-Present)&#10;Marketing Manager at Brand Inc (2018-2020)&#10;Describe your roles and achievements..."
+              rows={3}
+              className="w-full px-3 py-2 border border-border/50 rounded-md text-sm bg-input/50 text-foreground focus:border-accent transition-colors"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Education */}
+      <Card className="border-border/50 bg-card/50 backdrop-blur animate-fade-in hover:border-border/80 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-xl">Education</CardTitle>
+          <CardDescription>Your educational background</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="education">Education Details</Label>
+              <Button
+                type="button"
+                onClick={() => handleEnhanceText("education", formData.education)}
+                disabled={enhancingField === "education"}
+                size="sm"
+                variant="outline"
+                className="text-xs"
+              >
+                {enhancingField === "education" ? "Enhancing..." : "✨ Enhance"}
+              </Button>
+            </div>
+            <textarea
+              id="education"
+              name="education"
+              value={formData.education}
+              onChange={handleInputChange}
+              placeholder="Bachelor of Science in Computer Science, University Name (2016-2020)&#10;Describe your degree, GPA, relevant coursework..."
               rows={3}
               className="w-full px-3 py-2 border border-border/50 rounded-md text-sm bg-input/50 text-foreground focus:border-accent transition-colors"
             />
