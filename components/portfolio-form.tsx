@@ -306,6 +306,9 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
 
   return (
     <form onSubmit={handleGeneratePortfolio} className="space-y-5">
+      <div className="text-sm text-muted-foreground px-1">
+        Required fields are marked <span className="text-destructive">*</span>. Most fields are optional and can be filled later.
+      </div>
       {/* Basic Info */}
       <Card className="border-border/50 bg-card/50 backdrop-blur animate-fade-in hover:border-border/80 transition-colors">
         <CardHeader>
@@ -315,7 +318,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
               <Input
                 id="name"
                 name="name"
@@ -327,18 +330,18 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
               />
             </div>
             <div>
-              <Label htmlFor="tagline">Professional Tagline</Label>
+              <Label htmlFor="tagline">Professional Tagline <span className="text-muted-foreground text-xs">(optional)</span></Label>
               <Input
                 id="tagline"
                 name="tagline"
                 value={formData.tagline}
                 onChange={handleInputChange}
-                placeholder="Full Stack Developer | Creative Marketer | Data Analyst"
+                placeholder="Designer, Entrepreneur, Product Manager"
                 className="mt-1 bg-input/50 border-border/50 focus:border-accent transition-colors"
               />
             </div>
             <div>
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
               <Input
                 id="email"
                 name="email"
@@ -351,7 +354,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
               />
             </div>
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Phone <span className="text-muted-foreground text-xs">(optional)</span></Label>
               <Input
                 id="phone"
                 name="phone"
@@ -384,7 +387,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="linkedin">LinkedIn URL</Label>
+            <Label htmlFor="linkedin">LinkedIn URL <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <Input
               id="linkedin"
               name="linkedin"
@@ -395,7 +398,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
             />
           </div>
           <div>
-            <Label htmlFor="github">GitHub URL</Label>
+            <Label htmlFor="github">GitHub URL <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <Input
               id="github"
               name="github"
@@ -406,7 +409,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
             />
           </div>
           <div>
-            <Label htmlFor="twitter">Twitter URL</Label>
+            <Label htmlFor="twitter">Twitter URL <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <Input
               id="twitter"
               name="twitter"
@@ -417,7 +420,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
             />
           </div>
           <div>
-            <Label htmlFor="website">Personal Website</Label>
+            <Label htmlFor="website">Personal Website <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <Input
               id="website"
               name="website"
@@ -438,18 +441,18 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="skills">Skills (comma-separated)</Label>
+            <Label htmlFor="skills">Skills <span className="text-muted-foreground text-xs">(optional, comma-separated)</span></Label>
             <Input
               id="skills"
               name="skills"
               value={formData.skills}
               onChange={handleInputChange}
-              placeholder="React, TypeScript, Python, Node.js, AWS"
+              placeholder="Design, Research, Project Management"
               className="mt-1 bg-input/50 border-border/50 focus:border-accent transition-colors"
             />
           </div>
           <div>
-            <Label htmlFor="aboutHint">About Me Hint</Label>
+            <Label htmlFor="aboutHint">About Me Hint <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <textarea
               id="aboutHint"
               name="aboutHint"
@@ -462,7 +465,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="experience">Work Experience</Label>
+              <Label htmlFor="experience">Work Experience <span className="text-muted-foreground text-xs">(optional)</span></Label>
               <Button
                 type="button"
                 onClick={() => handleEnhanceText("experience", formData.experience)}
@@ -496,7 +499,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         <CardContent className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="education">Education Details</Label>
+              <Label htmlFor="education">Education Details <span className="text-muted-foreground text-xs">(optional)</span></Label>
               <Button
                 type="button"
                 onClick={() => handleEnhanceText("education", formData.education)}
@@ -513,7 +516,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
               name="education"
               value={formData.education}
               onChange={handleInputChange}
-              placeholder="Bachelor of Science in Computer Science, University Name (2016-2020)&#10;Describe your degree, GPA, relevant coursework..."
+              placeholder="Bachelor of Arts in Marketing, University Name (2018-2022)&#10;Add your degree, school, or certification..."
               rows={3}
               className="w-full px-3 py-2 border border-border/50 rounded-md text-sm bg-input/50 text-foreground focus:border-accent transition-colors"
             />
@@ -638,7 +641,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="research">Research Details</Label>
+            <Label htmlFor="research">Research Details <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <textarea
               id="research"
               name="research"
@@ -661,7 +664,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         <CardContent className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="achievements">Achievements / Awards</Label>
+              <Label htmlFor="achievements">Achievements / Awards <span className="text-muted-foreground text-xs">(optional)</span></Label>
               <Button
                 type="button"
                 onClick={() => handleEnhanceText("achievements", formData.achievements)}
@@ -695,7 +698,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         <CardContent className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="events">List of Events Attended</Label>
+              <Label htmlFor="events">List of Events Attended <span className="text-muted-foreground text-xs">(optional)</span></Label>
               <Button
                 type="button"
                 onClick={() => handleEnhanceText("events", formData.events)}
@@ -728,7 +731,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="languages">Languages (comma-separated)</Label>
+            <Label htmlFor="languages">Languages (comma-separated) <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <Input
               id="languages"
               name="languages"
