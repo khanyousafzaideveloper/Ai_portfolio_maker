@@ -35,7 +35,7 @@ type FormDataState = {
   aboutHint: string
   skills: string
   experience: string
-  education: string
+  education: string[]
   useAI: boolean
   template: string
   research: string
@@ -90,7 +90,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     aboutHint: "",
     skills: "",
     experience: "",
-    education: "",
+    education: [],
     useAI: true,
     template: "Modern Glass",
 
@@ -200,8 +200,25 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     setCurrentProject({ name: "", description: "", image: null })
   }
 
-  const handleRemoveProject = (id: number) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id))
+  const handleAddEducation = () => {
+    setFormData((prev) => ({
+      ...prev,
+      education: [...prev.education, ""],
+    }))
+  }
+
+  const handleRemoveEducation = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: prev.education.filter((_, i) => i !== index),
+    }))
+  }
+
+  const handleEducationChange = (index: number, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: prev.education.map((edu, i) => (i === index ? value : edu)),
+    }))
   }
 
   const handleGeneratePortfolio = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -497,30 +514,38 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
           <CardDescription>Your educational background</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="education">Education Details <span className="text-muted-foreground text-xs">(optional)</span></Label>
-              <Button
-                type="button"
-                onClick={() => handleEnhanceText("education", formData.education)}
-                disabled={enhancingField === "education"}
-                size="sm"
-                variant="outline"
-                className="text-xs"
-              >
-                {enhancingField === "education" ? "Enhancing..." : "✨ Enhance"}
-              </Button>
+          {formData.education.map((edu, index) => (
+            <div key={index} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={`education-${index}`}>Education {index + 1} <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                <Button
+                  type="button"
+                  onClick={() => handleRemoveEducation(index)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive/80"
+                >
+                  ✕
+                </Button>
+              </div>
+              <textarea
+                id={`education-${index}`}
+                value={edu}
+                onChange={(e) => handleEducationChange(index, e.target.value)}
+                placeholder="Bachelor of Arts in Marketing, University Name (2018-2022)&#10;Add your degree, school, or certification..."
+                rows={3}
+                className="w-full px-3 py-2 border border-border/50 rounded-md text-sm bg-input/50 text-foreground focus:border-accent transition-colors"
+              />
             </div>
-            <textarea
-              id="education"
-              name="education"
-              value={formData.education}
-              onChange={handleInputChange}
-              placeholder="Bachelor of Arts in Marketing, University Name (2018-2022)&#10;Add your degree, school, or certification..."
-              rows={3}
-              className="w-full px-3 py-2 border border-border/50 rounded-md text-sm bg-input/50 text-foreground focus:border-accent transition-colors"
-            />
-          </div>
+          ))}
+          <Button
+            type="button"
+            onClick={handleAddEducation}
+            variant="outline"
+            className="w-full bg-accent/10 hover:bg-accent/20 border-accent/50 hover:border-accent text-accent transition-colors"
+          >
+            + Add Education
+          </Button>
         </CardContent>
       </Card>
 

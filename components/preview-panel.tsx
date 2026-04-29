@@ -56,7 +56,7 @@ export default function PreviewPanel({ portfolioData, resumeData, isGenerating }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:min-h-[calc(100vh-10rem)]">
       <Card className="border-border/50 bg-card/50 backdrop-blur animate-fade-in hover:border-border/80 transition-colors">
         <CardHeader>
           <CardTitle className="text-xl">Live Preview</CardTitle>

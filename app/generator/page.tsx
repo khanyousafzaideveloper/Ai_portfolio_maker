@@ -59,9 +59,9 @@ export default function GeneratorPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-[1.55fr_1fr] gap-8 items-start">
           {/* Left Panel - Form */}
-          <div className="lg:sticky lg:top-28 lg:h-fit">
+          <div className="space-y-6">
             <PortfolioForm
               onGenerate={(data, resume) => {
                 setPortfolioData(data)
@@ -73,7 +73,7 @@ export default function GeneratorPage() {
           </div>
 
           {/* Right Panel - Preview */}
-          <div>
+          <div className="lg:sticky lg:top-28 lg:self-start">
             <PreviewPanel portfolioData={portfolioData} resumeData={resumeData} isGenerating={isGenerating} />
           </div>
         </div>

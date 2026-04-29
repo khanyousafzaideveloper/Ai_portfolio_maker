@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS portfolios (
   about_hint TEXT,
   skills TEXT,
   experience TEXT,
-  education TEXT,
+  education JSONB,
   research_profile TEXT,
   achievements TEXT,
   events TEXT,

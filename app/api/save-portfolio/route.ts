@@ -22,7 +22,7 @@ type PortfolioData = {
   aboutHint?: string
   skills?: string
   experience?: string
-  education?: string
+  education?: string[]
   researchProfile?: string
   achievements?: string
   events?: string
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
       about_hint: portfolioData.aboutHint,
       skills: portfolioData.skills,
       experience: portfolioData.experience,
-      education: portfolioData.education,
+      education: portfolioData.education || [],
       research_profile: portfolioData.research,
       achievements: portfolioData.achievements,
       events: portfolioData.events,
