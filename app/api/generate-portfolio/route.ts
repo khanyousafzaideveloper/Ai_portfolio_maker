@@ -8,6 +8,12 @@ interface Project {
   image?: string
 }
 
+interface Education {
+  degree: string
+  institution: string
+  percentage: string
+}
+
 interface RequestBody {
   name: string
   email: string
@@ -20,6 +26,7 @@ interface RequestBody {
   aboutHint: string
   skills: string
   experience: string
+  education: Education[]
   researchProfile?: string
   achievements?: string
   events?: string
@@ -285,6 +292,59 @@ function generateModernGlassTemplate(data: any) {
       line-height: 1.6;
     }
     
+    .education {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .education-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 15px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .education-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      border-color: #667eea;
+    }
+    
+    .education-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: white;
+      padding: 5px;
+      flex-shrink: 0;
+    }
+    
+    .education-content h4 {
+      color: #333;
+      font-size: 1.3em;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    .education-content .institution {
+      color: #667eea;
+      font-size: 1.1em;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .education-content .grade {
+      color: #666;
+      font-size: 0.95em;
+      font-weight: 500;
+    }
+    
     footer {
       text-align: center;
       color: white;
@@ -340,6 +400,19 @@ function generateModernGlassTemplate(data: any) {
       <section>
         <h2>Experience</h2>
         <p>${data.experience.replace(/\n/g, "<br>")}</p>
+      </section>
+    `
+        : ""
+    }
+    
+    ${
+      data.educationHtml
+        ? `
+      <section>
+        <h2>Education</h2>
+        <div class="education">
+          ${data.educationHtml}
+        </div>
       </section>
     `
         : ""
@@ -552,6 +625,58 @@ function generateMinimalDarkTemplate(data: any) {
       font-size: 0.95em;
     }
     
+    .education {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .education-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .education-item:hover {
+      border-color: #00d4ff;
+      background: #222;
+    }
+    
+    .education-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #0a0a0a;
+      padding: 5px;
+      flex-shrink: 0;
+    }
+    
+    .education-content h4 {
+      color: #00d4ff;
+      font-size: 1.2em;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    .education-content .institution {
+      color: #e0e0e0;
+      font-size: 1em;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .education-content .grade {
+      color: #999;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+    
     footer {
       text-align: center;
       color: #666;
@@ -620,6 +745,19 @@ function generateMinimalDarkTemplate(data: any) {
         <h2>Projects</h2>
         <div class="projects">
           ${data.projectsHtml}
+        </div>
+      </section>
+    `
+        : ""
+    }
+    
+    ${
+      data.educationHtml
+        ? `
+      <section>
+        <h2>Education</h2>
+        <div class="education">
+          ${data.educationHtml}
         </div>
       </section>
     `
@@ -849,6 +987,62 @@ function generateCreativeGradientTemplate(data: any) {
       line-height: 1.6;
     }
     
+    .education {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .education-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 15px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .education-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      border-color: #667eea;
+    }
+    
+    .education-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: white;
+      padding: 5px;
+      flex-shrink: 0;
+    }
+    
+    .education-content h4 {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.3em;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    .education-content .institution {
+      color: #333;
+      font-size: 1.1em;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .education-content .grade {
+      color: #666;
+      font-size: 0.95em;
+      font-weight: 500;
+    }
+    
     footer {
       text-align: center;
       color: white;
@@ -916,6 +1110,19 @@ function generateCreativeGradientTemplate(data: any) {
         <h2>Projects</h2>
         <div class="projects">
           ${data.projectsHtml}
+        </div>
+      </section>
+    `
+        : ""
+    }
+    
+    ${
+      data.educationHtml
+        ? `
+      <section>
+        <h2>Education</h2>
+        <div class="education">
+          ${data.educationHtml}
         </div>
       </section>
     `
@@ -1027,6 +1234,49 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Process education with logos
+    let educationHtml = ""
+    if (body.education && body.education.length > 0) {
+      for (const edu of body.education) {
+        if (edu.degree || edu.institution) {
+          let logoHtml = ""
+          if (edu.institution && body.useAI) {
+            try {
+              const logoResponse = await fetch("https://api.pollinations.ai/v1/images", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  prompt: `Professional logo for ${edu.institution} university or educational institution. Clean, official logo design. High quality, vector style.`,
+                  width: 80,
+                  height: 80,
+                  guidance: 7.5,
+                }),
+              })
+              if (logoResponse.ok) {
+                const logoData = await logoResponse.json()
+                if (logoData.images && logoData.images[0]) {
+                  logoHtml = `<img src="${logoData.images[0]}" alt="${edu.institution} logo" class="education-logo">`
+                }
+              }
+            } catch (error) {
+              console.error("Logo generation error:", error)
+            }
+          }
+
+          educationHtml += `
+            <div class="education-item">
+              ${logoHtml}
+              <div class="education-content">
+                <h4>${edu.degree || "Degree"}</h4>
+                <p class="institution">${edu.institution || "Institution"}</p>
+                ${edu.percentage ? `<p class="grade">${edu.percentage}</p>` : ""}
+              </div>
+            </div>
+          `
+        }
+      }
+    }
+
     const portfolioData = {
       name: body.name,
       email: body.email,
@@ -1044,6 +1294,7 @@ export async function POST(request: NextRequest) {
       skills: body.skills,
       skillsHtml,
       experience: body.experience,
+      educationHtml,
       projectsHtml,
       researchProfile: body.researchProfile,
       achievements: body.achievements,

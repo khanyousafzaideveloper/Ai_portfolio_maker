@@ -23,6 +23,12 @@ type PortfolioFormProps = {
   setIsGenerating: (value: boolean) => void
 }
 
+type Education = {
+  degree: string
+  institution: string
+  percentage: string
+}
+
 type FormDataState = {
   name: string
   email: string
@@ -35,7 +41,7 @@ type FormDataState = {
   aboutHint: string
   skills: string
   experience: string
-  education: string[]
+  education: Education[]
   useAI: boolean
   template: string
   research: string
@@ -203,7 +209,7 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
   const handleAddEducation = () => {
     setFormData((prev) => ({
       ...prev,
-      education: [...prev.education, ""],
+      education: [...prev.education, { degree: "", institution: "", percentage: "" }],
     }))
   }
 
@@ -214,10 +220,12 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
     }))
   }
 
-  const handleEducationChange = (index: number, value: string) => {
+  const handleEducationChange = (index: number, field: keyof Education, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      education: prev.education.map((edu, i) => (i === index ? value : edu)),
+      education: prev.education.map((edu, i) =>
+        i === index ? { ...edu, [field]: value } : edu
+      ),
     }))
   }
 
@@ -515,9 +523,9 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
         </CardHeader>
         <CardContent className="space-y-4">
           {formData.education.map((edu, index) => (
-            <div key={index} className="space-y-2">
+            <div key={index} className="space-y-3 p-4 border border-border/50 rounded-lg bg-muted/20">
               <div className="flex items-center justify-between">
-                <Label htmlFor={`education-${index}`}>Education {index + 1} <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                <Label className="text-base font-medium">Education {index + 1} <span className="text-muted-foreground text-xs">(optional)</span></Label>
                 <Button
                   type="button"
                   onClick={() => handleRemoveEducation(index)}
@@ -528,14 +536,38 @@ export default function PortfolioForm({ onGenerate, isGenerating, setIsGeneratin
                   ✕
                 </Button>
               </div>
-              <textarea
-                id={`education-${index}`}
-                value={edu}
-                onChange={(e) => handleEducationChange(index, e.target.value)}
-                placeholder="Bachelor of Arts in Marketing, University Name (2018-2022)&#10;Add your degree, school, or certification..."
-                rows={3}
-                className="w-full px-3 py-2 border border-border/50 rounded-md text-sm bg-input/50 text-foreground focus:border-accent transition-colors"
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor={`degree-${index}`} className="text-sm">Degree/Program</Label>
+                  <Input
+                    id={`degree-${index}`}
+                    value={edu.degree}
+                    onChange={(e) => handleEducationChange(index, "degree", e.target.value)}
+                    placeholder="Bachelor of Science in Computer Science"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`institution-${index}`} className="text-sm">Institution</Label>
+                  <Input
+                    id={`institution-${index}`}
+                    value={edu.institution}
+                    onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
+                    placeholder="Harvard University"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor={`percentage-${index}`} className="text-sm">Grade/Percentage</Label>
+                <Input
+                  id={`percentage-${index}`}
+                  value={edu.percentage}
+                  onChange={(e) => handleEducationChange(index, "percentage", e.target.value)}
+                  placeholder="3.8 GPA / 85%"
+                  className="mt-1"
+                />
+              </div>
             </div>
           ))}
           <Button
